@@ -1,5 +1,6 @@
 package dev.bungrudi.loanengine;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,13 +22,13 @@ public class LoanEngine {
         return loan;
     }
 
-    public void makePayment(String loanId, double amount) {
+    public void makePayment(String loanId, BigDecimal amount) {
         Loan loan = getLoan(loanId);
         loan.makePayment(amount, currentDate);
         loan.updateStatus(currentDate);
     }
 
-    public double getOutstanding(String loanId) {
+    public BigDecimal getOutstanding(String loanId) {
         Loan loan = getLoan(loanId);
         return loan.getOutstanding();
     }

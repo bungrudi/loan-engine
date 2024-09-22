@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -12,27 +14,53 @@ import java.util.List;
 @Setter
 public class Loan {
     private String loanId;
-    private double totalAmount;
-    private double weeklyPayment;
+    private BigDecimal loanAmount;
+    private BigDecimal totalAmount;
+    private double interestRate;
+    private BigDecimal weeklyPayment;
     private int numberOfWeeks;
     @Setter(AccessLevel.NONE)
     private List<PaymentDue> schedule;
     @Setter(AccessLevel.NONE)
-    private double outstanding;
+    private BigDecimal outstanding;
     private LocalDate startDate;
     private LocalDate firstPaymentDate;
     private LoanStanding standing;
 
-    public Loan(String loanId, double loanAmount, double interestRate, int numberOfWeeks, LocalDate startDate, List<PaymentDue> schedule) {
+    private static final int SCALE = 2;
+    /**
+     * banker's rounding
+     */
+    private static final RoundingMode ROUNDING_MODE = RoundingMode.HALF_EVEN;
+
+    public Loan(String loanId, BigDecimal loanAmount, BigDecimal totalAmount, double interestRate, int numberOfWeeks, LocalDate startDate, List<PaymentDue> schedule) {
         this.loanId = loanId;
-        this.totalAmount = loanAmount * (1 + interestRate);
-        this.weeklyPayment = this.totalAmount / numberOfWeeks;
+        this.loanAmount = loanAmount;
+        this.totalAmount = totalAmount;
+        this.interestRate = interestRate;
+        this.weeklyPayment = this.totalAmount.divide(BigDecimal.valueOf(numberOfWeeks), SCALE, ROUNDING_MODE);
         this.numberOfWeeks = numberOfWeeks;
         this.startDate = startDate;
         this.firstPaymentDate = startDate.plusDays(7);
         this.schedule = schedule;
         this.outstanding = this.totalAmount;
         this.standing = LoanStanding.GOOD_STANDING;
+    }
+
+    public BigDecimal getLoanAmount() {
+        return loanAmount;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public BigDecimal getWeeklyPayment() {
+        return weeklyPayment;
+    }
+
+    public BigDecimal getOutstanding() {
+        return outstanding;
     }
 
     public int getCurrentWeek(LocalDate date) {
@@ -43,15 +71,11 @@ public class Loan {
         return Math.min(numberOfWeeks - 1, (int) ((daysSinceStart-1) / 7));
     }
 
-    public double getOutstanding() {
-        return outstanding;
-    }
-
     public List<PaymentDue> getSchedule() {
         return schedule; // ideally we should return immutable wrapper
     }
 
-    public void makePayment(double amount, LocalDate paymentDate) {
+    public void makePayment(BigDecimal amount, LocalDate paymentDate) {
         int currentWeek = getCurrentWeek(paymentDate);
         PaymentDue nextPayment = null;
         for (PaymentDue payment : schedule) {
@@ -69,7 +93,7 @@ public class Loan {
             throw new IllegalStateException("Payment is not yet due");
         }
         
-        if (amount != nextPayment.getAmountDue()) {
+        if (amount.compareTo(BigDecimal.valueOf(nextPayment.getAmountDue())) != 0) {
             throw new IllegalArgumentException("Payment must be exact amount due for week " + nextPayment.getWeekNumber());
         }
         
@@ -81,7 +105,7 @@ public class Loan {
         outstanding = totalAmount;
         for (PaymentDue payment : schedule) {
             if (payment.isPaid()) {
-                outstanding -= payment.getAmountDue();
+                outstanding = outstanding.subtract(BigDecimal.valueOf(payment.getAmountDue()));
             }
         }
     }
@@ -121,7 +145,7 @@ public class Loan {
     public String toString() {
         return "Loan{" +
                 "loanId='" + loanId + '\'' +
-                ", totalAmount=" + totalAmount +
+                ", totalAmount=" + loanAmount +
                 ", weeklyPayment=" + weeklyPayment +
                 ", numberOfWeeks=" + numberOfWeeks +
                 ", startDate=" + startDate +

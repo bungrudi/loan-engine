@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 public class LoanTest {
 
@@ -22,8 +23,8 @@ public class LoanTest {
     @Test
     void given_newLoan_when_initialized_then_detailsAreCorrect() {
         assertEquals("L001", loan.getLoanId());
-        assertEquals(5_500_000, loan.getTotalAmount(), 0.01);
-        assertEquals(110_000, loan.getWeeklyPayment(), 0.01);
+        assertEquals(BigDecimal.valueOf(5_500_000.00), loan.getTotalAmount());
+        assertEquals(BigDecimal.valueOf(110_000.00), loan.getWeeklyPayment());
         assertEquals(50, loan.getNumberOfWeeks());
         assertEquals(startDate, loan.getStartDate());
         assertEquals(startDate.plusDays(7), loan.getFirstPaymentDate());
@@ -56,22 +57,21 @@ public class LoanTest {
 
     @Test
     void given_loan_when_makePayment_then_outstandingIsUpdated() {
-        loan.makePayment(110_000, startDate.plusDays(7));
-        assertEquals(5_390_000, loan.getOutstanding(), 0.01);
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(7));
+        assertEquals(BigDecimal.valueOf(5_390_000.00), loan.getOutstanding());
     }
 
     @Test
     void given_loan_when_makePaymentEarly_then_exceptionIsThrown() {
         assertThrows(IllegalStateException.class, () -> {
-            loan.makePayment(110_000, startDate);
+            loan.makePayment(BigDecimal.valueOf(110_000), startDate);
         });
-
     }
 
     @Test
     void given_loan_when_makePaymentWithIncorrectAmount_then_exceptionIsThrown() {
         assertThrows(IllegalArgumentException.class, () -> {
-            loan.makePayment(100_000, startDate.plusDays(7));
+            loan.makePayment(BigDecimal.valueOf(100_000), startDate.plusDays(7));
         });
     }
 
@@ -99,25 +99,25 @@ public class LoanTest {
 
     @Test
     void given_loan_when_payWithinWeek_then_success() {
-        loan.makePayment(110_000, startDate.plusDays(2));
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(2));
         assertTrue(loan.getSchedule().get(0).isPaid());
         assertFalse(loan.getSchedule().get(1).isPaid());
     }
 
     @Test
     void given_loan_when_alreadyPaidThisWeek_then_cannotPayAgain() {
-        loan.makePayment(110_000, startDate.plusDays(2));
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(2));
         assertTrue(loan.getSchedule().get(0).isPaid());
         assertFalse(loan.getSchedule().get(1).isPaid());
         // still in the first week, cannot pay again
         assertThrows(IllegalStateException.class, () -> {
-            loan.makePayment(110_000, startDate.plusDays(3));
+            loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(3));
         }, "Payment already made for this week.");
     }
 
     @Test
     void given_latePayments_whenPay_then_payLateFirst() {
-        loan.makePayment(110_000, startDate.plusDays(14));
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(14));
         assertTrue(loan.getSchedule().get(0).isPaid());
         assertFalse(loan.getSchedule().get(1).isPaid());
     }
@@ -129,7 +129,7 @@ public class LoanTest {
         assertEquals(LoanStanding.DELINQUENT, loan.getStanding());
 
         // Make a payment
-        loan.makePayment(110_000, startDate.plusDays(21));
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(21));
 
         // Update status manually
         loan.updateStatus(startDate.plusDays(21));
@@ -145,21 +145,21 @@ public class LoanTest {
 
     @Test
     void given_loan_when_makePayments_then_outstandingIsCorrect() {
-        assertEquals(5_500_000, loan.getOutstanding(), 0.01, "Initial outstanding should be 5,500,000");
+        assertEquals(BigDecimal.valueOf(5_500_000.00), loan.getOutstanding(), "Initial outstanding should be 5,500,000");
 
-        loan.makePayment(110_000, startDate.plusDays(7));
-        assertEquals(5_390_000, loan.getOutstanding(), 0.01, "Outstanding after first payment should be 5,390,000");
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(7));
+        assertEquals(BigDecimal.valueOf(5_390_000.00), loan.getOutstanding(), "Outstanding after first payment should be 5,390,000");
 
-        loan.makePayment(110_000, startDate.plusDays(14));
-        assertEquals(5_280_000, loan.getOutstanding(), 0.01, "Outstanding after second payment should be 5,280,000");
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(14));
+        assertEquals(BigDecimal.valueOf(5_280_000.00), loan.getOutstanding(), "Outstanding after second payment should be 5,280,000");
 
-        loan.makePayment(110_000, startDate.plusDays(21));
-        assertEquals(5_170_000, loan.getOutstanding(), 0.01, "Outstanding after third payment should be 5,170,000");
+        loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(21));
+        assertEquals(BigDecimal.valueOf(5_170_000.00), loan.getOutstanding(), "Outstanding after third payment should be 5,170,000");
 
         // Make all remaining payments
         for (int i = 3; i < 50; i++) {
-            loan.makePayment(110_000, startDate.plusDays(7L * (i + 1)));
+            loan.makePayment(BigDecimal.valueOf(110_000), startDate.plusDays(7L * (i + 1)));
         }
-        assertEquals(0, loan.getOutstanding(), 0.01, "Outstanding after all payments should be 0");
+        assertEquals(BigDecimal.ZERO, loan.getOutstanding(), "Outstanding after all payments should be 0");
     }
 }
