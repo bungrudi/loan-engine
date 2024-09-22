@@ -80,3 +80,41 @@ By creating subclasses, each loan type can have its own unique behavior while st
 
 This loan engine provides a robust framework for managing consumptive weekly loans, with clear separation of concerns and extensibility for future enhancements. The use of the LoanFactory interface and the potential for Loan subclasses allows for easy addition of new loan types and servicing logic as business requirements evolve.
 
+## Running Tests and Viewing Reports
+
+To run the tests and view the reports for this project, follow these steps:
+
+1. **Install Java Development Kit (JDK)**:
+   - Ensure you have JDK 21 or later installed on your system.
+   - You can download it from [Oracle's website](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) or use OpenJDK. Easy install for MacOS is "brew install openjdk@21"
+   - Verify the installation by running `java -version` in your terminal.
+
+2. **Clone the Repository**:
+   - Clone this repository to your local machine using Git:
+     ```
+     git clone [repository-url]
+     cd [repository-name]
+     ```
+
+3. **Run Tests Using Gradle**:
+   - This project uses Gradle as its build tool. You don't need to install Gradle separately as the project includes a Gradle wrapper.
+   - To run the tests, execute the following command in the project root directory:
+     ```
+     ./gradlew test
+     ```
+   - On Windows, use `gradlew.bat test` instead.
+
+4. **View Test Reports**:
+   - After running the tests, Gradle will generate HTML reports.
+   - You can find these reports in the `build/reports/tests/test` directory.
+   - Open `index.html` in this directory with your web browser to view the detailed test results.
+
+5. **Generate and View Coverage Reports** (if configured):
+   - If JaCoCo or another code coverage tool is configured, you can generate coverage reports with:
+     ```
+     ./gradlew jacocoTestReport
+     ```
+   - The coverage report will typically be available in `build/reports/jacoco/test/html/index.html`. ![code coverage report](./code_coverage_01.png) ![code coverage in code](./code_coverage_02.png)
+
+
+
