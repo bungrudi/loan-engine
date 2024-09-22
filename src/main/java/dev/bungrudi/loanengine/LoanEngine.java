@@ -1,5 +1,7 @@
 package dev.bungrudi.loanengine;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.Map;
 
 public class LoanEngine {
     private Map<String, Loan> loans;
+    @Getter
     private LocalDate currentDate;
     private LoanFactory loanFactory;
 
@@ -38,7 +41,7 @@ public class LoanEngine {
         return loan.isDelinquent();
     }
 
-    private Loan getLoan(String loanId) {
+    public Loan getLoan(String loanId) {
         Loan loan = loans.get(loanId);
         if (loan == null) {
             throw new IllegalArgumentException("Loan not found");
@@ -46,19 +49,11 @@ public class LoanEngine {
         return loan;
     }
 
-    public void setCurrentDate(LocalDate newDate) {
-        this.currentDate = newDate;
-    }
-
     public void endOfDay() {
         currentDate = currentDate.plusDays(1);
         for (Loan loan : loans.values()) {
             loan.updateStatus(currentDate);
         }
-        // Other end-of-day activities could be added here
-    }
-
-    public static void main(String[] args) {
-        // Main method left empty for now
+        // Other end-of-day activities could be added here... For example: calculate and apply penalties for overdue loans.
     }
 }
