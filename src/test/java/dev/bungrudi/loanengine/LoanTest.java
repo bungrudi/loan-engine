@@ -17,7 +17,7 @@ public class LoanTest {
     void setUp() {
         startDate = LocalDate.of(2023, 3, 1);
         loanFactory = new ConsumptiveWeeklyLoanFactory();
-        loan = loanFactory.createLoan("L001", 5_000_000, 0.1, 50, startDate);
+        loan = loanFactory.createLoan("L001", BigDecimal.valueOf(5_000_000), BigDecimal.valueOf(0.1), 50, startDate);
     }
 
     @Test

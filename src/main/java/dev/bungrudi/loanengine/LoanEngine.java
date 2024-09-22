@@ -16,7 +16,7 @@ public class LoanEngine {
         this.loanFactory = loanFactory;
     }
 
-    public Loan createLoan(String loanId, double loanAmount, double interestRate, int numberOfWeeks) {
+    public Loan createLoan(String loanId, BigDecimal loanAmount, BigDecimal interestRate, int numberOfWeeks) {
         Loan loan = loanFactory.createLoan(loanId, loanAmount, interestRate, numberOfWeeks, currentDate);
         loans.put(loanId, loan);
         return loan;
